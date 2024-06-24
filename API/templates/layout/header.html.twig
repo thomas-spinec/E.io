@@ -1,0 +1,14 @@
+<nav>
+    {% if app.user %}
+        <div class="mb-3">
+            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+    <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/user/profile">Profil</a></li>
+        <li><a href="/publication">Publication</a></li>
+        <li><a href="/message">Message</a></li>
+        <li><a href="/commentaire">Commentaire</a></li>
+    </ul>
+</nav>
