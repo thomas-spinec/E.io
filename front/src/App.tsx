@@ -4,11 +4,11 @@ import InputComponent from "./components/InputComponent";
 
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3001");
+const socket = io("http://localhost:3001", { autoConnect: false });
 
 function App() {
-  const [isPseudo, setIsPseudo] = useState(false);
-  const [pseudo, setPseudo] = useState("");
+  const [isPseudo, setIsPseudo] = useState<boolean>(false);
+  const [pseudo, setPseudo] = useState<string>("");
   socket.on("message", (data) => {
     console.log(data);
   });
@@ -24,6 +24,7 @@ function App() {
           pseudo={pseudo}
           setPseudo={setPseudo}
           setIsPseudo={setIsPseudo}
+          socket={socket}
         />
       )}
     </>

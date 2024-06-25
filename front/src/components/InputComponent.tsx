@@ -1,6 +1,25 @@
-import React from "react";
+import { Socket } from "socket.io-client";
 
-function InputComponent({ pseudo, setPseudo, setIsPseudo }) {
+interface InputComponentProps {
+  pseudo: string;
+  setPseudo: (pseudo: string) => void;
+  setIsPseudo: (isPseudo: boolean) => void;
+  socket: Socket;
+}
+
+const InputComponent: React.FC<InputComponentProps> = ({
+  pseudo,
+  setPseudo,
+  setIsPseudo,
+  socket,
+}) => {
+  const onUserSelection = (data: string): void => {
+    setIsPseudo(true);
+    
+    socket.auth = { pseudo: data };
+    socket.connect();
+  };
+
   return (
     <div>
       <h1>Entrez votre pseudo</h1>
@@ -9,9 +28,9 @@ function InputComponent({ pseudo, setPseudo, setIsPseudo }) {
         placeholder="Rentrer un pseudo"
         onChange={(e) => setPseudo(e.target.value)}
       />
-      <button onClick={() => setIsPseudo(true)}>S'inscrire</button>
+      <button onClick={() => onUserSelection(pseudo)}>S'inscrire</button>
     </div>
   );
-}
+};
 
 export default InputComponent;
