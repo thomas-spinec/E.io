@@ -36,6 +36,17 @@ class ConnectionLogger {
                 // Send the group message to all members of the group
                 this.io.to(groupId).emit('groupMessage', senderId, message);
             });
+
+            socket.onAny((event, ...args) => {
+                console.log("EVENT, ARG", event, args);
+                console.log("SOCKET.AUTH", socket.handshake.auth);
+            });
+
+            socket.emit("message", "Hello World");
+
+            socket.on("response", (data) => {
+                console.log(data);
+            });
         });
     }
 }
