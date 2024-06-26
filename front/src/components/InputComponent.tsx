@@ -15,9 +15,10 @@ const InputComponent: React.FC<InputComponentProps> = ({
 }) => {
   const onUserSelection = (data: string): void => {
     setIsPseudo(true);
-    
+
     socket.auth = { pseudo: data };
     socket.connect();
+    socket.emit("test", 'test');
   };
 
   return (
