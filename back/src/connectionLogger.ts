@@ -10,6 +10,14 @@ class ConnectionLogger {
     public initialize(): void {
         this.io.on('connection', (socket: Socket) => {
             console.log(`New connection: ${socket.id}`);
+            const users = [];
+            for(let [id, socket] of this.io.of("/").sockets) {
+                users.push({
+                    id,
+                    auth: socket.handshake.auth
+                });
+            }
+            socket.emit("users", users);
 
             socket.on('joinGroup', (groupId: string) => {
                 socket.join(groupId);
