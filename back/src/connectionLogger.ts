@@ -10,12 +10,14 @@ class ConnectionLogger {
     }
 
     public initialize(): void {
+        this.io.use((socket, next) => {
+            return next();
+        });
         this.io.on('connection', (socket: Socket) => {
             for(let [id, socket] of this.io.of("/").sockets) {
                 this.users[id] = { id, auth: socket.handshake.auth };
             }
             socket.broadcast.emit("message", {
-                author: "Server",
                 content: `${this.users[socket.id].auth.pseudo} s'est connecté`});
             this.io.emit("users", this.users);
 
@@ -62,7 +64,8 @@ class ConnectionLogger {
             });
 
             socket.on("disconnect", () => {
-                socket.broadcast.emit("message", `${this.users[socket.id].auth.pseudo} s'est déconnecté`);
+                socket.broadcast.emit("message", {
+                    content: `${this.users[socket.id].auth.pseudo} s'est déconnecté`});
                 this.users = Object.fromEntries(
                     Object.entries(this.users).filter(([id, user]) => id !== socket.id)
                 );
