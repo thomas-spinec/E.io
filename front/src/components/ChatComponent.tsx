@@ -9,7 +9,7 @@ interface ChatComponentProps {
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ pseudo, socket }) => {
 
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<{ author: string; content: string }[]>([]);
     const [message, setMessage] = useState<string>("");
 
     useEffect(() => {
@@ -19,19 +19,33 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ pseudo, socket }) => {
         };
     }, []);
 
-    const onReceiveMessage = (message: string): void => {
+    const onReceiveMessage = (message: {author: string; content: string}): void => {
         setMessages((messages) => [...messages, message]);
     };
 
     const onSendMessage = (message: string): void => {
         socket.emit("message", message);
+        setMessage("");
     };
 
   return (
     <div>
         <div>
             {messages.map((message, index) => (
-                <p key={index}>{message}</p>
+                <div
+                    key={index}
+                >
+                    {message.author === pseudo ? (
+                        <p
+                            style={{ textAlign: "right" }}>
+                             {message.content}
+                        </p>
+                    ) : (
+                        <p style={{ textAlign: "left" }}>
+                            {message.author}: {message.content}
+                        </p>
+                    )}
+                </div>
             ))}
             <input 
                 type="text"
