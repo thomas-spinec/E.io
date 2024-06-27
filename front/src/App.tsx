@@ -1,46 +1,23 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import InputComponent from "./components/InputComponent";
+import Authentification from "./pages/Authentification";
+import HomePage from "./pages/HomePage";
+import Layout from "./pages/Layout";
 
-import { io } from "socket.io-client";
-import ChatComponent from "./components/ChatComponent";
 
-const socket = io("http://localhost:3000", { autoConnect: false });
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 function App() {
-  const [isPseudo, setIsPseudo] = useState<boolean>(false);
-  const [pseudo, setPseudo] = useState<string>("");
-
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connect");
-    });
-    
-    return () => {
-      socket.off("connect");
-    };
-  }, []);
-
-  window.onbeforeunload = () => {
-    socket.disconnect();
-  };
-
   return (
-    <>
-      {isPseudo ? (
-        <>
-          <h1>Bienvenue {pseudo}</h1>
-          <ChatComponent pseudo={pseudo} socket={socket} />
-        </>
-      ) : (
-        <InputComponent
-          pseudo={pseudo}
-          setPseudo={setPseudo}
-          setIsPseudo={setIsPseudo}
-          socket={socket}
-        />
-      )}
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/auth" element={<Authentification />}/>
+        </Route>
+      </Routes>
+    </BrowserRouter>
+
   );
 }
 

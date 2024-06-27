@@ -1,4 +1,5 @@
 import { Socket } from "socket.io-client";
+import { userActions } from "../services/userServices";
 
 interface InputComponentProps {
   pseudo: string;
@@ -18,7 +19,7 @@ const InputComponent: React.FC<InputComponentProps> = ({
 
     socket.auth = { pseudo: data };
     socket.connect();
-    socket.emit("test", 'test');
+    socket.emit("test", "test");
   };
 
   return (
