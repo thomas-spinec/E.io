@@ -11,10 +11,12 @@ class ConnectionLogger {
 
     public initialize(): void {
         this.io.on('connection', (socket: Socket) => {
-            console.log(`New connection: ${socket.handshake.auth.pseudo} (${socket.id})`);
             for(let [id, socket] of this.io.of("/").sockets) {
                 this.users[id] = { id, auth: socket.handshake.auth };
             }
+            socket.broadcast.emit("message", {
+                author: "Server",
+                content: `${this.users[socket.id].auth.pseudo} s'est connecté`});
             this.io.emit("users", this.users);
 
             socket.on('joinGroup', (groupId: string) => {
@@ -43,23 +45,24 @@ class ConnectionLogger {
                 this.io.to(groupId).emit('groupMessage', senderId, message);
             });
 
-            socket.onAny((event, ...args) => {
+            /* socket.onAny((event, ...args) => {
                 console.log("EVENT, ARG", event, args);
                 console.log("SOCKET.AUTH", socket.handshake.auth);
-            });
+            }); */
 
             socket.on("response", (data) => {
                 console.log(data);
             });
 
             socket.on("message", (message) => {
-                console.log(this.users)
-                console.log(`Message from ${this.users[socket.id].auth.pseudo}: ${message}`);
-                this.io.emit("message", `${this.users[socket.id].auth.pseudo}: ${message}`);
+                this.io.emit("message", {
+                    author: this.users[socket.id].auth.pseudo,
+                    content: message
+                });
             });
 
             socket.on("disconnect", () => {
-                this.io.emit("message", `User ${this.users[socket.id].auth.pseudo} disconnected`);
+                socket.broadcast.emit("message", `${this.users[socket.id].auth.pseudo} s'est déconnecté`);
                 this.users = Object.fromEntries(
                     Object.entries(this.users).filter(([id, user]) => id !== socket.id)
                 );
