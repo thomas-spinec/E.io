@@ -13,20 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-#[ApiResource(
-    collectionOperations: [
-        'get',
-        'post' => [
-            'input' => RegisterDto::class,
-            'output' => User::class,
-        ],
-    ],
-    itemOperations: [
-        'get',
-        'put',
-        'delete',
-    ],
-)]
+#[ApiResource()]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]

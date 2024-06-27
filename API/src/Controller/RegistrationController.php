@@ -4,56 +4,45 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Dto\Authentication\RegisterDto;
-use App\Form\RegistrationFormType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 class RegistrationController extends AbstractController
 {
 
-    private ValidatorInterface $validator;
-
-    public function __construct(ValidatorInterface $validator)
-    {
-        $this->validator = $validator;
-    }
 
     #[Route('/register', name: 'app_register', methods: ['POST'])]
-    public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager): Response
-    {
+    public function register(
+        #[MapRequestPayload(
+            // RegisterDto::class,
+            acceptFormat: 'json',
+            validationFailedStatusCode: 400,
+        )] RegisterDto $dto,
+        UserPasswordHasherInterface $userPasswordHasher,
+        EntityManagerInterface $entityManager,
+    ): Response {
 
-        // register with the request from the front (react)
-        $data = json_decode($request->getContent(), true);
-
-        $registerDto = new RegisterDto(
-            $data['username'] ?? null,
-            $data['email'] ?? null,
-            $data['password'] ?? null
-        );
-
-        $errors = $this->validator->validate($registerDto);
-
-        if (count($errors) > 0) {
-            return $this->json($errors, 400);
-        }
+        // s'il y a une erreur de validation, on la renvoie
 
         $user = new User();
-        $user->setUsername($registerDto->getUsername());
-        $user->setEmail($registerDto->getEmail());
+        $user->setUsername($dto->getUsername());
+        $user->setEmail($dto->getEmail());
         $user->setPassword(
             $userPasswordHasher->hashPassword(
                 $user,
-                $registerDto->getPassword()
+                $dto->getPassword()
             )
         );
 
         $entityManager->persist($user);
         $entityManager->flush();
+
+
 
         return $this->json($user, 201);
 
