@@ -31,17 +31,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ pseudo, socket }) => {
 
   return (
     <div>
-        <div>
-            {messages.map((message, index) => (
-                <div
-                    key={index}
-                >
+        <div className='flex flex-col w-3/4 m-auto'>
+            <div>
+                {messages.map((message, index) => (
                     <MessageComponent
+                        key={index}
                         message={message}
                         pseudo={pseudo}
                     />
-                </div>
-            ))}
+                ))}
+            </div>
             <input 
                 type="text"
                 placeholder="Rentrer un message"

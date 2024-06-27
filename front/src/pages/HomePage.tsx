@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { io } from "socket.io-client";
 import InputComponent from "../components/InputComponent";
+import ChatComponent from "../components/ChatComponent";
 
 const socket = io("http://localhost:3000", { autoConnect: false });
 function HomePage() {
@@ -13,7 +14,10 @@ function HomePage() {
   return (
     <>
       {isPseudo ? (
-        <h1>Bienvenue {pseudo}</h1>
+        <>
+          <h1>Bienvenue {pseudo}</h1>
+          <ChatComponent  pseudo={pseudo} socket={socket} />
+        </>
       ) : (
         <InputComponent
           pseudo={pseudo}
