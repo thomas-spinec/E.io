@@ -1,6 +1,7 @@
 import React from 'react'
 import { useEffect, useState } from 'react';
 import { Socket } from "socket.io-client";
+import MessageComponent from './MessageComponent';
 
 interface ChatComponentProps {
   pseudo: string;
@@ -35,16 +36,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ pseudo, socket }) => {
                 <div
                     key={index}
                 >
-                    {message.author === pseudo ? (
-                        <p
-                            style={{ textAlign: "right" }}>
-                             {message.content}
-                        </p>
-                    ) : (
-                        <p style={{ textAlign: "left" }}>
-                            {message.author}: {message.content}
-                        </p>
-                    )}
+                    <MessageComponent
+                        message={message}
+                        pseudo={pseudo}
+                    />
                 </div>
             ))}
             <input 
