@@ -1,11 +1,31 @@
-
+import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../../context/userContext";
+import { userActions } from "../../services/userServices";
+type ButtonEvent = React.MouseEvent<HTMLButtonElement, MouseEvent>;
 interface LoginComponentProps {
   setIsLogin: (isLogin: boolean) => void;
 }
 
-
-
 const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
+  const { handleLogin } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: ButtonEvent) => {
+    e.preventDefault();
+    const user = {
+      username: (document.getElementById("email") as HTMLInputElement).value,
+      password: (document.getElementById("password") as HTMLInputElement).value,
+    };
+    const response = await userActions.login(user);
+
+    if (response.status === 200) {
+      handleLogin(response.data);
+      navigate("/");
+    } else {
+      alert("Email ou mot de passe incorrect");
+    }
+  };
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 mx-auto md:h-screen lg:py-0">
@@ -72,15 +92,18 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
                 </a>
               </div>
               <button
+                onClick={(e) => {
+                  handleSubmit(e);
+                }}
                 type="submit"
-                className="w-full text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                className="w-full text-white bg-blue-400 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
               >
                 Se connecter
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                Pas encore de compte? {" "}
+                Pas encore de compte?{" "}
                 <button
-                  onClick = {() => setIsLogin(false)}
+                  onClick={() => setIsLogin(false)}
                   className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   S'inscrire
@@ -92,6 +115,6 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
       </div>
     </section>
   );
-}
+};
 
 export default LoginComponent;
