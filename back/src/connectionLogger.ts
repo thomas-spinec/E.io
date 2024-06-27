@@ -2,22 +2,22 @@ import { Server, Socket } from 'socket.io';
 
 class ConnectionLogger {
     private io: Server;
+    private users: { [id: string]: { id: string, auth: any } };
 
     constructor(io: Server) {
         this.io = io;
+        this.users = {};
     }
 
     public initialize(): void {
         this.io.on('connection', (socket: Socket) => {
-            console.log(`New connection: ${socket.id}`);
-            const users = [];
             for(let [id, socket] of this.io.of("/").sockets) {
-                users.push({
-                    id,
-                    auth: socket.handshake.auth
-                });
+                this.users[id] = { id, auth: socket.handshake.auth };
             }
-            socket.emit("users", users);
+            socket.broadcast.emit("message", {
+                author: "Server",
+                content: `${this.users[socket.id].auth.pseudo} s'est connecté`});
+            this.io.emit("users", this.users);
 
             socket.on('joinGroup', (groupId: string) => {
                 socket.join(groupId);
@@ -45,15 +45,28 @@ class ConnectionLogger {
                 this.io.to(groupId).emit('groupMessage', senderId, message);
             });
 
-            socket.onAny((event, ...args) => {
+            /* socket.onAny((event, ...args) => {
                 console.log("EVENT, ARG", event, args);
                 console.log("SOCKET.AUTH", socket.handshake.auth);
-            });
-
-            socket.emit("message", "Hello World");
+            }); */
 
             socket.on("response", (data) => {
                 console.log(data);
+            });
+
+            socket.on("message", (message) => {
+                this.io.emit("message", {
+                    author: this.users[socket.id].auth.pseudo,
+                    content: message
+                });
+            });
+
+            socket.on("disconnect", () => {
+                socket.broadcast.emit("message", `${this.users[socket.id].auth.pseudo} s'est déconnecté`);
+                this.users = Object.fromEntries(
+                    Object.entries(this.users).filter(([id, user]) => id !== socket.id)
+                );
+                this.io.emit("users", this.users);
             });
         });
     }
