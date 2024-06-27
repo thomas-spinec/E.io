@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import InputComponent from "./components/InputComponent";
 
@@ -11,9 +11,15 @@ function App() {
   const [isPseudo, setIsPseudo] = useState<boolean>(false);
   const [pseudo, setPseudo] = useState<string>("");
 
-  socket.on("users", (users) => {
-    console.log(users);
-  });
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("connect");
+    });
+    
+    return () => {
+      socket.off("connect");
+    };
+  }, []);
 
   window.onbeforeunload = () => {
     socket.disconnect();
