@@ -1,7 +1,9 @@
+import { useState, useEffect } from "react";
 import "./App.css";
 import Authentification from "./pages/Authentification";
 import HomePage from "./pages/HomePage";
 import Layout from "./pages/Layout";
+
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
@@ -15,6 +17,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+
   );
 }
 
