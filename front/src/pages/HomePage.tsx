@@ -1,30 +1,29 @@
-import { useState } from "react";
+import { useContext, useEffect } from "react";
 import { io } from "socket.io-client";
-import InputComponent from "../components/InputComponent";
 import ChatComponent from "../components/ChatComponent";
+import HomeComponent from "../components/HomeComponent";
+import { UserContext } from "../context/userContext";
 
 const socket = io("http://localhost:3000", { autoConnect: false });
 function HomePage() {
-  const [isPseudo, setIsPseudo] = useState<boolean>(false);
-  const [pseudo, setPseudo] = useState<string>("");
+  const { isConnected, user } = useContext(UserContext);
 
-  socket.on("users", (users) => {
+
+
+  /* socket.on("users", (users) => {
     console.log(users);
-  });
+  }); */
+
+ 
   return (
     <>
-      {isPseudo ? (
+      {isConnected ? (
         <>
-          <h1>Bienvenue {pseudo}</h1>
-          <ChatComponent  pseudo={pseudo} socket={socket} />
+          <h1>Bienvenue {user?.username}</h1>
+          <ChatComponent pseudo={user?.username} socket={socket} />
         </>
       ) : (
-        <InputComponent
-          pseudo={pseudo}
-          setPseudo={setPseudo}
-          setIsPseudo={setIsPseudo}
-          socket={socket}
-        />
+        <HomeComponent />
       )}
     </>
   );
