@@ -1,14 +1,16 @@
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../context/userContext";
 
 interface MessageComponentProps {
   message: { author: string; content: string };
-  pseudo: string;
 }
 
 const MessageComponent: React.FC<MessageComponentProps> = ({
   message,
-  pseudo,
 }) => {
+
+  const { user } = useContext(UserContext);
+
   return (
     /*   <div>
         {message.author === pseudo ? (
@@ -32,7 +34,7 @@ const MessageComponent: React.FC<MessageComponentProps> = ({
         alt="Jese image"
       />
       <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-        {message.author === pseudo ? (
+        {message.author === user?.username ? (
           <>
             <div className="flex items-center justify-end space-x-2 ">
               <span className="text-sm font-semibold text-gray-900 dark:text-white">

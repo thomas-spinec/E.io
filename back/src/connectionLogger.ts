@@ -48,11 +48,15 @@ class ConnectionLogger {
             });
 
             socket.on('privateMessage', (recipientId: string, message: string) => {
-                const senderId = socket.id;
+                const senderId = this.users[socket.handshake.auth.id].socketId;
                 console.log(`Private message from ${senderId} to ${recipientId}: ${message}`);
 
                 // Send the private message to the recipient
-                this.io.to(recipientId).emit('privateMessage', senderId, message);
+                socket.to(recipientId).emit('privateMessage', {
+                    content: message,
+                    from: senderId,
+                    to: recipientId,
+                });
             });
 
             socket.on('groupMessage', (groupId: string, message: string) => {
@@ -63,16 +67,17 @@ class ConnectionLogger {
                 this.io.to(groupId).emit('groupMessage', senderId, message);
             });
 
-            /* socket.onAny((event, ...args) => {
+            socket.onAny((event, ...args) => {
                 console.log("EVENT, ARG", event, args);
                 console.log("SOCKET.AUTH", socket.handshake.auth);
-            }); */
+            });
 
             socket.on("response", (data) => {
                 console.log(data);
             });
 
             socket.on("message", (message) => {
+                console.log(socket.handshake.auth);
                 this.io.emit("message", {
                     author: this.users[socket.handshake.auth.id].username,
                     content: message
@@ -81,7 +86,7 @@ class ConnectionLogger {
 
             socket.on("disconnect", () => {
                 socket.broadcast.emit("message", {
-                    content: `${this.users[socket.handshake.auth.id].username} s'est déconnecté`});
+                    content: `${this.users[socket.handshake.auth.id]?.username} s'est déconnecté`});
                 delete this.users[socket.handshake.auth.id];
                 this.io.emit("users", this.users);
             });

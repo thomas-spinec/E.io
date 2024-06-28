@@ -9,7 +9,7 @@ interface LoginComponentProps {
 }
 
 const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
-const { socketConnection } = useContext(SocketContext);
+/* const { socketConnection } = useContext(SocketContext); */
   const { handleLogin } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const { socketConnection } = useContext(SocketContext);
 
     if (response.status === 200) {
       handleLogin(response.data.user);
-      socketConnection(response.data.user.username, response.data.user.id);
+      /* socketConnection(response.data.user.username, response.data.user.id); */
       navigate("/");
     } else {
       alert("Email ou mot de passe incorrect");
