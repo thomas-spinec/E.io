@@ -2,7 +2,12 @@ import { Server, Socket } from 'socket.io';
 
 class ConnectionLogger {
     private io: Server;
-    private users: { [id: string]: { id: string, auth: any } };
+    private users: { 
+        [id: string]: {
+            socketId: string;
+            username: string;
+        }
+    };
 
     constructor(io: Server) {
         this.io = io;
@@ -11,14 +16,25 @@ class ConnectionLogger {
 
     public initialize(): void {
         this.io.use((socket, next) => {
+            const auth = socket.handshake.auth;
+            console.log("AUTH", auth);
+            if (!auth) {
+                return next(new Error("Authentification failed"));
+            }
+
             return next();
         });
         this.io.on('connection', (socket: Socket) => {
-            for(let [id, socket] of this.io.of("/").sockets) {
-                this.users[id] = { id, auth: socket.handshake.auth };
-            }
+
+            this.users[socket.handshake.auth.id] = {
+                socketId: socket.id,
+                username: socket.handshake.auth.username,
+                // Any other user details you want to track
+            };
+
+            console.log(this.users)
             socket.broadcast.emit("message", {
-                content: `${this.users[socket.id].auth.pseudo} s'est connecté`});
+                content: `${this.users[socket.handshake.auth.id].username} s'est connecté`});
             this.io.emit("users", this.users);
 
             socket.on('joinGroup', (groupId: string) => {
@@ -58,17 +74,15 @@ class ConnectionLogger {
 
             socket.on("message", (message) => {
                 this.io.emit("message", {
-                    author: this.users[socket.id].auth.pseudo,
+                    author: this.users[socket.handshake.auth.id].username,
                     content: message
                 });
             });
 
             socket.on("disconnect", () => {
                 socket.broadcast.emit("message", {
-                    content: `${this.users[socket.id].auth.pseudo} s'est déconnecté`});
-                this.users = Object.fromEntries(
-                    Object.entries(this.users).filter(([id, user]) => id !== socket.id)
-                );
+                    content: `${this.users[socket.handshake.auth.id].username} s'est déconnecté`});
+                delete this.users[socket.handshake.auth.id];
                 this.io.emit("users", this.users);
             });
         });
