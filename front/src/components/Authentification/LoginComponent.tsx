@@ -2,12 +2,14 @@ import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/userContext";
 import { userActions } from "../../services/userServices";
+import { SocketContext } from "../../context/socketContext";
 type ButtonEvent = React.MouseEvent<HTMLButtonElement, MouseEvent>;
 interface LoginComponentProps {
   setIsLogin: (isLogin: boolean) => void;
 }
 
 const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
+const { socketConnection } = useContext(SocketContext);
   const { handleLogin } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -20,7 +22,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLogin }) => {
     const response = await userActions.login(user);
 
     if (response.status === 200) {
-      handleLogin(response.data);
+      handleLogin(response.data.user);
+      socketConnection(response.data.user.username, response.data.user.id);
       navigate("/");
     } else {
       alert("Email ou mot de passe incorrect");
